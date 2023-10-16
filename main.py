@@ -50,6 +50,21 @@ def main():
 
             piece_block_object = pygame.Rect(cords[1], cords[0], BLOCK_SIZE-1, BLOCK_SIZE-1)
             pygame.draw.rect(board_screen, piece.color, piece_block_object)
+        
+        # Kind of reproducing code here, would be better to havea function that 
+        # calculates drop down position, but I ran into issues with passing pieces
+        # by reference
+        ghost_piece = logic.Piece(board.rows, board.cols, piece.name)
+        ghost_piece.position = piece.position
+        new_position = ghost_piece.move('d')
+        while board.is_legal_position(new_position):
+            ghost_piece.position = new_position
+            new_position = ghost_piece.move('d')
+        
+        for block in ghost_piece.position:
+            cords = logic.convert_cords(block)
+            ghost_block = pygame.Rect(cords[1], cords[0], BLOCK_SIZE-1, BLOCK_SIZE-1)
+            pygame.draw.rect(board_screen, 'grey', ghost_block, 1)
 
         for i, row in enumerate(board.state):
             for j, column in enumerate(row):
