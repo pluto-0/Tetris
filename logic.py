@@ -1,3 +1,5 @@
+from hueristics import get_squareness_and_holes
+
 board_rows, board_cols = 20, 10
 BLOCK_SIZE = 30
 
@@ -48,6 +50,7 @@ class Board:
     def place_piece(self, piece):
         for block in piece.position:
             self.state[block[0]][block[1]] = piece.color
+        
             
 class Piece:
     def __init__(self, board_rows, board_cols, name):
