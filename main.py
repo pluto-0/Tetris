@@ -1,14 +1,17 @@
 import pygame
 import random
 import logic
-from logic import Piece, Board, rotate, move_left, move_right, drop_down, make_random_piece
+from logic import Piece, Board, rotate, move_left, move_right, drop_down, make_random_piece, get_cpu_move, possible_moves, drop_down2
 import pprint
-from hueristics import possible_moves
+from time import sleep
+from collections import deque
+#from hueristics import possible_moves
 
 BLOCK_SIZE = logic.BLOCK_SIZE
 SCREEN_SIZE = (720, 1280)
 
 def main():
+    player_type = input("Human or computer player? ")
     # pygame setup
     pygame.init()
     screen = pygame.display.set_mode(SCREEN_SIZE)
@@ -24,26 +27,43 @@ def main():
     next_piece_box = pygame.Rect(0, 0, BLOCK_SIZE * 5, BLOCK_SIZE * 5)
     pygame.draw.rect(next_piece_screen, 'white', next_piece_box, 1)
     frame = 0
+    cpu_moves = deque()
     moved_down = False
     running = True
 
 
     while running:
-        for event in pygame.event.get():
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_DOWN:
-                    piece, next_piece, board, moved_down = move_down(piece, next_piece, board, moved_down)
-                elif event.key == pygame.K_RIGHT:
-                    move_right(piece, board)
-                elif event.key == pygame.K_LEFT:
-                    move_left(piece, board)
-                elif event.key == pygame.K_UP:
+        if player_type[0] == 'h':
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_DOWN:
+                        piece, next_piece, board, moved_down = move_down(piece, next_piece, board, moved_down)
+                    elif event.key == pygame.K_RIGHT:
+                        move_right(piece, board)
+                    elif event.key == pygame.K_LEFT:
+                        move_left(piece, board)
+                    elif event.key == pygame.K_UP:
+                        rotate(piece, board)
+                    elif event.key == pygame.K_SPACE:
+                        piece, next_piece, board = drop_down(piece, next_piece, board)
+                elif event.type == pygame.QUIT:
+                    running = False
+        else:
+            if not cpu_moves:
+                piece, next_piece, board = drop_down(piece, next_piece, board)
+                rotation, direction, offset = get_cpu_move(piece, board)
+                for i in range(abs(rotation - piece.rotation)):
+                    cpu_moves.append('r')
+                for i in range(offset):
+                    cpu_moves.append(direction)
+            if frame % 15 == 0:
+                next_move = cpu_moves.popleft()
+                if next_move == 'r':
                     rotate(piece, board)
-                elif event.key == pygame.K_SPACE:
-                    piece, next_piece, board = drop_down(piece, next_piece, board)
-            elif event.type == pygame.QUIT:
-                running = False
-           
+                elif next_piece == 'l':
+                    move_left(piece, board)
+                else:
+                    move_right(piece, board)
         if frame % 15 == 0:
             if not moved_down:
                 piece, next_piece, board, moved_down = move_down(piece, next_piece, board, moved_down)
