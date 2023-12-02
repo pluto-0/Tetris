@@ -1,6 +1,6 @@
-#from hueristics import get_squareness_and_holes, possible_moves
 import random
 import numpy as np
+from pprint import pprint
 
 board_rows, board_cols = 20, 10
 BLOCK_SIZE = 30
@@ -222,16 +222,22 @@ def drop_down(piece, next_piece, board):
 # These versions use a different is_legal_position, which 
 # still works when piece is above board
 def drop_down2(piece, next_piece, board):
+    board_copy = Board()
+    for i, row in enumerate(board_copy.state):
+        for j, col in enumerate(row):
+            board_copy.state[i][j] = board.state[i][j]
     new_position = piece.move('d')
-    while board.is_legal_position2(new_position):
+    while board_copy.is_legal_position(new_position):
         piece.position = new_position
         new_position = piece.move('d')
-    board.place_piece(piece)
+    board_copy.place_piece(piece)
+    '''
     if not board.update():
         board = Board()
+        '''
     piece = next_piece
     next_piece = make_random_piece(board)
-    return piece, next_piece, board
+    return piece, next_piece, board_copy
 
 def move_right2(piece, board):
     new_position = piece.move('r')
@@ -261,7 +267,7 @@ def get_squareness_and_holes(board_state):
                 columns_found.add(j)
             elif board_state[i][j] is None and j in columns_found:
                 holes += 1
-    heights.remove(min(heights))
+    #heights.remove(min(heights))
 
     return {"holes": holes, 'mse': get_mse(heights), 'heights': heights}
 
@@ -270,33 +276,29 @@ def possible_moves(piece, board):
     possible_states = {}
     for rotation in range(4):
         for direction in ['l', 'r']:
-            offset = 0
-            piece_copy = Piece(board.rows, board.cols, piece.name)
-            while piece_copy.rotation != rotation:
-                rotate(piece_copy, board)
-            for i in range(10):
-                offset += 1
-                piece_copy2 = Piece(board.rows, board.cols, piece.name)
-                piece_copy2.position = piece_copy.position
-                board_copy = Board()
-                for i, row in enumerate(board_copy.state):
-                    for j, col in enumerate(row):
-                        board_copy.state[i][j] = board.state[i][j]
-                new_state = drop_down2(piece_copy2, piece_copy, board_copy)[2].state
-                possible_states[(rotation, direction, offset)] = new_state
-                if direction == 'l':
-                    move_left2(piece_copy, board)
-                else:
-                    move_right2(piece_copy, board)
+            for offset in range(6):
+                piece_copy = Piece(board.rows, board.cols, piece.name)
+                while piece_copy.rotation != rotation:
+                    rotate(piece_copy, board)
+                for thing in range(offset):
+                    if direction == 'l':
+                        move_left(piece_copy, board)
+                    else:
+                        move_right(piece_copy, board)
+                    board_copy = Board()
+                    for i, row in enumerate(board.state):
+                        for j, col in enumerate(row):
+                            board_copy.state[i][j] = board.state[i][j]
+                    possible_states[(rotation, direction, offset)] = drop_down(piece_copy, piece_copy, board_copy)[2].state
     return possible_states
 
 # This will use model when it's avaliable
 def get_cpu_move(piece, board):
     possible = possible_moves(piece, board)
-    best_move = random.choice(list(possible.keys()))
     cur_holes = float('inf')
     for move in possible:
-        if min(get_squareness_and_holes(possible[move])['heights']) < cur_holes:
+        metrics = get_squareness_and_holes(possible[move])
+        if metrics['holes'] < cur_holes:
             best_move = move
-            cur_holes = min(get_squareness_and_holes(possible[move])['heights'])
+            cur_holes = metrics['holes']
     return best_move

@@ -1,14 +1,21 @@
 import pygame
 import random
 import logic
-from logic import Piece, Board, rotate, move_left, move_right, drop_down, make_random_piece, get_cpu_move, possible_moves, drop_down2
+from logic import Piece, Board, rotate, move_left, move_right, drop_down, make_random_piece, get_cpu_move, possible_moves, drop_down2, get_squareness_and_holes
 import pprint
 from time import sleep
 from collections import deque
-#from hueristics import possible_moves
 
 BLOCK_SIZE = logic.BLOCK_SIZE
 SCREEN_SIZE = (720, 1280)
+
+'''
+test_board = Board()
+for i in range(3):
+    test_board.state[17][i] = 'green'
+test_piece = Piece(test_board.rows, test_board.cols, 'line')
+pprint.pprint(possible_moves(test_piece, test_board))
+'''
 
 def main():
     player_type = input("Human or computer player? ")
@@ -31,7 +38,6 @@ def main():
     moved_down = False
     running = True
 
-
     while running:
         if player_type[0] == 'h':
             for event in pygame.event.get():
@@ -50,20 +56,22 @@ def main():
                     running = False
         else:
             if not cpu_moves:
-                piece, next_piece, board = drop_down(piece, next_piece, board)
                 rotation, direction, offset = get_cpu_move(piece, board)
                 for i in range(abs(rotation - piece.rotation)):
-                    cpu_moves.append('r')
+                    cpu_moves.append('rotate')
                 for i in range(offset):
                     cpu_moves.append(direction)
-            if frame % 15 == 0:
+                cpu_moves.append('drop')
+            if frame % 10 == 0:
                 next_move = cpu_moves.popleft()
-                if next_move == 'r':
+                if next_move == 'rotate':
                     rotate(piece, board)
-                elif next_piece == 'l':
+                elif next_move == 'l':
                     move_left(piece, board)
-                else:
+                elif next_move == 'r':
                     move_right(piece, board)
+                else:
+                    piece, next_piece, board = drop_down(piece, next_piece, board)
         if frame % 15 == 0:
             if not moved_down:
                 piece, next_piece, board, moved_down = move_down(piece, next_piece, board, moved_down)
