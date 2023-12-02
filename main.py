@@ -1,7 +1,9 @@
 import pygame
 import random
 import logic
+from logic import Piece, Board, rotate, move_left, move_right, drop_down, make_random_piece
 import pprint
+from hueristics import possible_moves
 
 BLOCK_SIZE = logic.BLOCK_SIZE
 SCREEN_SIZE = (720, 1280)
@@ -24,6 +26,7 @@ def main():
     frame = 0
     moved_down = False
     running = True
+
 
     while running:
         for event in pygame.event.get():
@@ -109,10 +112,6 @@ def find_white_box_cords(board):
     return ((SCREEN_SIZE[0] - (BLOCK_SIZE * board.cols)) // 2,
              (SCREEN_SIZE[1] - (BLOCK_SIZE * board.rows)) // 2)
 
-def make_random_piece(board):
-    piece_name = random.choice(logic.pieces)
-    return logic.Piece(board.rows, board.cols, piece_name)
-
 def move_down(piece, next_piece, board, moved_down):
     new_position = piece.move('d')
     if board.is_legal_position(new_position):
@@ -126,34 +125,6 @@ def move_down(piece, next_piece, board, moved_down):
         piece = next_piece
         next_piece = make_random_piece(board)
     return piece, next_piece, board, moved_down
-    
-def move_right(piece, board):
-    new_position = piece.move('r')
-    if board.is_legal_position(new_position):
-        piece.position = new_position
-
-def move_left(piece, board):
-    new_position = piece.move('l')
-    if board.is_legal_position(new_position):
-        piece.position = new_position
-
-def rotate(piece, board):
-    new_position = piece.rotate()
-    if board.is_legal_position(new_position):
-        piece.rotation = (piece.rotation + 1) % 4
-        piece.position = new_position
-
-def drop_down(piece, next_piece, board):
-    new_position = piece.move('d')
-    while board.is_legal_position(new_position):
-        piece.position = new_position
-        new_position = piece.move('d')
-    board.place_piece(piece)
-    if not board.update():
-        board = logic.Board()
-    piece = next_piece
-    next_piece = make_random_piece(board)
-    return piece, next_piece, board
     
 if __name__ == '__main__':
     main()

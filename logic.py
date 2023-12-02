@@ -1,4 +1,5 @@
-from hueristics import get_squareness_and_holes
+#from hueristics import get_squareness_and_holes
+import random
 
 board_rows, board_cols = 20, 10
 BLOCK_SIZE = 30
@@ -42,6 +43,13 @@ class Board:
     def is_legal_position(self, piece):
         for block in piece:
             if block[0] < 0: continue
+            if (block[1] < 0 or block[1] >= self.cols or block[0] >= self.rows
+                or self.state[block[0]][block[1]] != None):
+                return False
+        return True
+    
+    def is_legal_position2(self, piece):
+        for block in piece:
             if (block[1] < 0 or block[1] >= self.cols or block[0] >= self.rows
                 or self.state[block[0]][block[1]] != None):
                 return False
@@ -173,3 +181,59 @@ def convert_cords(cords):
     return [cords[0] * BLOCK_SIZE, cords[1] * BLOCK_SIZE]
 
 pieces = ['line', 'square', 't', 'l', 'reverse_l', 'z', 'reverse_z']
+
+def make_random_piece(board):
+    piece_name = random.choice(pieces)
+    return Piece(board.rows, board.cols, piece_name)
+
+def move_right(piece, board):
+    new_position = piece.move('r')
+    if board.is_legal_position(new_position):
+        piece.position = new_position
+
+def move_left(piece, board):
+    new_position = piece.move('l')
+    if board.is_legal_position(new_position):
+        piece.position = new_position
+
+def rotate(piece, board):
+    new_position = piece.rotate()
+    if board.is_legal_position(new_position):
+        piece.rotation = (piece.rotation + 1) % 4
+        piece.position = new_position
+
+def drop_down(piece, next_piece, board):
+    new_position = piece.move('d')
+    while board.is_legal_position(new_position):
+        piece.position = new_position
+        new_position = piece.move('d')
+    board.place_piece(piece)
+    if not board.update():
+        board = Board()
+    piece = next_piece
+    next_piece = make_random_piece(board)
+    return piece, next_piece, board
+
+# These versions use a different is_legal_position, which 
+# still works when piece is above board
+def drop_down2(piece, next_piece, board):
+    new_position = piece.move('d')
+    while board.is_legal_position2(new_position):
+        piece.position = new_position
+        new_position = piece.move('d')
+    board.place_piece(piece)
+    if not board.update():
+        board = Board()
+    piece = next_piece
+    next_piece = make_random_piece(board)
+    return piece, next_piece, board
+
+def move_right2(piece, board):
+    new_position = piece.move('r')
+    if board.is_legal_position2(new_position):
+        piece.position = new_position
+
+def move_left2(piece, board):
+    new_position = piece.move('l')
+    if board.is_legal_position2(new_position):
+        piece.position = new_position
