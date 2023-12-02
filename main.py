@@ -1,7 +1,7 @@
 import pygame
 import random
 import logic
-from logic import Piece, Board, rotate, move_left, move_right, drop_down, make_random_piece, get_cpu_move, possible_moves, drop_down2, get_squareness_and_holes
+from logic import Piece, Board, rotate, move_left, move_right, drop_down, make_random_piece, get_cpu_move, possible_moves, drop_down2, get_metrics
 import pprint
 from time import sleep
 from collections import deque
@@ -62,7 +62,7 @@ def main():
                 for i in range(offset):
                     cpu_moves.append(direction)
                 cpu_moves.append('drop')
-            if frame % 10 == 0:
+            if frame % 5 == 0:
                 next_move = cpu_moves.popleft()
                 if next_move == 'rotate':
                     rotate(piece, board)

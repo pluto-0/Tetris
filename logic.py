@@ -256,7 +256,7 @@ def get_mse(arr):
         sum_squared_error += (num - mean) ** 2
     return sum_squared_error / len(arr)
 
-def get_squareness_and_holes(board_state):
+def get_metrics(board_state):
     heights = [0] * len(board_state[0])
     holes = 0
     columns_found = set()
@@ -267,6 +267,8 @@ def get_squareness_and_holes(board_state):
                 columns_found.add(j)
             elif board_state[i][j] is None and j in columns_found:
                 holes += 1
+            if board_state[i][j] == None:
+                full = False
     #heights.remove(min(heights))
 
     return {"holes": holes, 'mse': get_mse(heights), 'heights': heights}
@@ -289,16 +291,20 @@ def possible_moves(piece, board):
                     for i, row in enumerate(board.state):
                         for j, col in enumerate(row):
                             board_copy.state[i][j] = board.state[i][j]
-                    possible_states[(rotation, direction, offset)] = drop_down(piece_copy, piece_copy, board_copy)[2].state
+                    possible_states[(rotation, direction, offset)] = drop_down(piece_copy, piece_copy, board_copy)[2]
     return possible_states
 
 # This will use model when it's avaliable
 def get_cpu_move(piece, board):
     possible = possible_moves(piece, board)
-    cur_holes = float('inf')
+    cur = float('inf')
     for move in possible:
-        metrics = get_squareness_and_holes(possible[move])
-        if metrics['holes'] < cur_holes:
+        metrics = get_metrics(possible[move].state)
+        score_diff = possible[move].score - board.score
+        if score_diff > 0:
+            print(score_diff)
+        metric = metrics['mse'] + 3 ** metrics['holes'] + (1.5 ** max(metrics['heights'])) - score_diff
+        if metric < cur:
             best_move = move
-            cur_holes = metrics['holes']
+            cur = metric
     return best_move
