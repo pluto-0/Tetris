@@ -1,12 +1,12 @@
 import pygame
 import random
-import logic
-from logic import Piece, Board, rotate, move_left, move_right, drop_down, make_random_piece, get_cpu_move, possible_moves, drop_down2, get_metrics
+import tetris
+from tetris import Piece, Board, rotate, move_left, move_right, drop_down, make_random_piece, get_cpu_move, possible_moves, drop_down2, get_metrics
 import pprint
 from time import sleep
 from collections import deque
 
-BLOCK_SIZE = logic.BLOCK_SIZE
+BLOCK_SIZE = tetris.BLOCK_SIZE
 SCREEN_SIZE = (720, 1280)
 
 '''
@@ -23,7 +23,7 @@ def main():
     pygame.init()
     screen = pygame.display.set_mode(SCREEN_SIZE)
     clock = pygame.time.Clock()
-    board = logic.Board()
+    board = tetris.Board()
     board_screen = pygame.Surface((BLOCK_SIZE * board.cols, BLOCK_SIZE * board.rows))
     white_box = pygame.Rect(0, 0, BLOCK_SIZE * board.cols, BLOCK_SIZE * board.rows)
     piece = make_random_piece(board)
@@ -82,7 +82,7 @@ def main():
         next_piece_screen.fill('black')
 
         for block in piece.position:
-            cords = logic.convert_cords(block)
+            cords = tetris.convert_cords(block)
 
             piece_block_object = pygame.Rect(cords[1], cords[0], BLOCK_SIZE-1, BLOCK_SIZE-1)
             pygame.draw.rect(board_screen, piece.color, piece_block_object)
@@ -90,7 +90,7 @@ def main():
         # Kind of reproducing code here, would be better to have a function that 
         # calculates drop down position, but I ran into issues with passing pieces
         # by reference
-        ghost_piece = logic.Piece(board.rows, board.cols, piece.name)
+        ghost_piece = tetris.Piece(board.rows, board.cols, piece.name)
         ghost_piece.position = piece.position
         new_position = ghost_piece.move('d')
         while board.is_legal_position(new_position):
@@ -98,7 +98,7 @@ def main():
             new_position = ghost_piece.move('d')
         
         for block in ghost_piece.position:
-            cords = logic.convert_cords(block)
+            cords = tetris.convert_cords(block)
             ghost_block = pygame.Rect(cords[1], cords[0], BLOCK_SIZE-1, BLOCK_SIZE-1)
             pygame.draw.rect(board_screen, 'grey', ghost_block, 1)
 
@@ -116,7 +116,7 @@ def main():
         for i, row in enumerate(board.state):
             for j, column in enumerate(row):
                 if column != None:
-                    cords = logic.convert_cords([i, j])
+                    cords = tetris.convert_cords([i, j])
                     board_block_object = pygame.Rect(cords[1], cords[0], BLOCK_SIZE-1, BLOCK_SIZE-1)
                     pygame.draw.rect(board_screen, column, board_block_object)
         
@@ -148,7 +148,7 @@ def move_down(piece, next_piece, board, moved_down):
     else:
         board.place_piece(piece)
         if not board.update():
-            board = logic.Board()
+            board = tetris.Board()
         new_piece = make_random_piece(board)
         piece = next_piece
         next_piece = make_random_piece(board)
