@@ -12,6 +12,11 @@ class Board:
         self.score = 0
         self.state = [[None for i in range(cols)] for j in range(rows)]
 
+    def get_state_size(self):
+        '''Size of the state'''
+        return 4
+    
+    
     def find_full_rows(self):
         num_lines = 0
         lines_to_clear = []
@@ -274,7 +279,8 @@ def get_metrics(board_state):
     return {"holes": holes, 'mse': get_mse(heights), 'heights': heights}
 
 # We need many copies bc we don't want to modify original objects
-def possible_moves(piece, board):
+def possible_states(piece, board):
+    possible_boards = {}
     possible_states = {}
     for rotation in range(4):
         for direction in ['l', 'r']:
@@ -291,20 +297,30 @@ def possible_moves(piece, board):
                     for i, row in enumerate(board.state):
                         for j, col in enumerate(row):
                             board_copy.state[i][j] = board.state[i][j]
-                    possible_states[(rotation, direction, offset)] = drop_down(piece_copy, piece_copy, board_copy)[2]
+                    possible_boards[(rotation, direction, offset)] = drop_down(piece_copy, piece_copy, board_copy)[2]
+            for move in possible_boards:
+                score_diff = possible_boards[move].score - board.score
+                if score_diff > 0:
+                    print(score_diff)
+                score_increases = {0:0, 1: 800, 2: 1200, 3: 1800, 4: 2000}
+                lines=0
+                for index in score_increases:
+                    if score_diff==score_increases[index]:
+                        lines=index
+                metrics=get_metrics(possible_boards[move].state)
+                possible_states[move]=[lines,metrics['holes'],metrics['mse'],metrics['heights']] 
     return possible_states
 
 # This will use model when it's avaliable
 def get_cpu_move(piece, board):
-    possible = possible_moves(piece, board)
+    possible = possible_states(piece, board)
     cur = float('inf')
     for move in possible:
-        metrics = get_metrics(possible[move].state)
-        score_diff = possible[move].score - board.score
-        if score_diff > 0:
-            print(score_diff)
-        metric = metrics['mse'] + 3 ** metrics['holes'] + (1.5 ** max(metrics['heights'])) - score_diff
+        metric = possible[move][2] + 3 ** possible[move][1] + (1.5 ** max(possible[move][3])) - 500*possible[move][0]
         if metric < cur:
             best_move = move
             cur = metric
+    print(best_move)
     return best_move
+
+

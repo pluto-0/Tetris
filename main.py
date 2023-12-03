@@ -1,7 +1,7 @@
 import pygame
 import random
 import tetris
-from tetris import Piece, Board, rotate, move_left, move_right, drop_down, make_random_piece, get_cpu_move, possible_moves, drop_down2, get_metrics
+from tetris import Piece, Board, rotate, move_left, move_right, drop_down, make_random_piece, get_cpu_move, possible_states, drop_down2, get_metrics
 import pprint
 from time import sleep
 from collections import deque
