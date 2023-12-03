@@ -34,6 +34,7 @@ def main():
     next_piece_box = pygame.Rect(0, 0, BLOCK_SIZE * 5, BLOCK_SIZE * 5)
     pygame.draw.rect(next_piece_screen, 'white', next_piece_box, 1)
     frame = 0
+    total_scores = []
     cpu_moves = deque()
     moved_down = False
     running = True
@@ -57,12 +58,16 @@ def main():
         else:
             if not cpu_moves:
                 rotation, direction, offset = get_cpu_move(piece, board)
-                for i in range(abs(rotation - piece.rotation)):
+                neg_mod = {-1: 3, -2: 2, -3: 1}
+                diff = rotation - piece.rotation
+                if diff < 0:
+                    diff = neg_mod[diff]
+                for i in range(diff):
                     cpu_moves.append('rotate')
                 for i in range(offset):
                     cpu_moves.append(direction)
                 cpu_moves.append('drop')
-            if frame % 5 == 0:
+            if frame % 1 == 0:
                 next_move = cpu_moves.popleft()
                 if next_move == 'rotate':
                     rotate(piece, board)
@@ -148,6 +153,8 @@ def move_down(piece, next_piece, board, moved_down):
     else:
         board.place_piece(piece)
         if not board.update():
+            total_scores.append(board.score)
+            print(total_scores)
             board = logic.Board()
         new_piece = make_random_piece(board)
         piece = next_piece

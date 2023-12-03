@@ -4,6 +4,7 @@ from pprint import pprint
 
 board_rows, board_cols = 20, 10
 BLOCK_SIZE = 30
+total_scores = []
 
 class Board:
     def __init__(self, rows=20, cols=10):
@@ -180,7 +181,7 @@ rotations = {'line': line_rotations,
             'reverse_z': reverse_z_rotations
 }
 
-score_increases = {0:0, 1: 800, 2: 1200, 3: 1800, 4: 2000}
+score_increases = {0:0, 1: 1, 2: 2, 3: 3, 4: 4}
 
 def convert_cords(cords):
     return [cords[0] * BLOCK_SIZE, cords[1] * BLOCK_SIZE]
@@ -269,9 +270,11 @@ def get_metrics(board_state):
                 holes += 1
             if board_state[i][j] == None:
                 full = False
-    #heights.remove(min(heights))
-
-    return {"holes": holes, 'mse': get_mse(heights), 'heights': heights}
+    heights.remove(min(heights))
+    bumpiness = 0
+    for i in range(len(heights) - 1):
+        bumpiness += abs(heights[i+1] - heights[i])
+    return {"holes": holes, 'mse': get_mse(heights), 'heights': heights, 'bumpiness': bumpiness}
 
 # We need many copies bc we don't want to modify original objects
 def possible_moves(piece, board):
@@ -301,9 +304,7 @@ def get_cpu_move(piece, board):
     for move in possible:
         metrics = get_metrics(possible[move].state)
         score_diff = possible[move].score - board.score
-        if score_diff > 0:
-            print(score_diff)
-        metric = metrics['mse'] + 3 ** metrics['holes'] + (1.5 ** max(metrics['heights'])) - score_diff
+        metric = .51 * sum(metrics['heights']) + .3566 * metrics['holes'] + .18 * metrics['bumpiness'] - .76 * score_diff
         if metric < cur:
             best_move = move
             cur = metric
