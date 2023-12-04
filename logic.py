@@ -309,5 +309,4 @@ def get_cpu_move(piece, board):
         if metric < cur:
             best_move = move
             cur = metric
-    print(get_metrics(possible[best_move].state)['holes'])
     return best_move
