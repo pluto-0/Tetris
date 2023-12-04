@@ -16,6 +16,8 @@ class Board:
         '''Size of the state'''
         return 4
     
+    def reset(self):
+        return[0,0,0,[0] * len(self.state[0])]
     
     def find_full_rows(self):
         num_lines = 0
@@ -317,11 +319,11 @@ def get_cpu_move(piece, board):
     possible = possible_states(piece, board)
     cur = float('inf')
     for move in possible:
-        metric = possible[move][2] + 3 ** possible[move][1] + (1.5 ** max(possible[move][3])) - 500*possible[move][0]
+        metric = possible[move][2] + 1000 ** possible[move][1] + (1.5 ** max(possible[move][3])) - 500*possible[move][0]
         if metric < cur:
             best_move = move
             cur = metric
-    print(best_move)
+    print(possible[best_move])
     return best_move
 
 def calculate_move(piece, move, board):

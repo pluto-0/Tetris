@@ -132,7 +132,7 @@ def main():
     
         pygame.display.flip()
         frame += 1
-        clock.tick(60)
+        clock.tick(5)
         
 
 
