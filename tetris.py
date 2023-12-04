@@ -17,7 +17,7 @@ class Board:
         return 4
     
     def reset(self):
-        return[0,0,0,[0] * len(self.state[0])]
+        return[0,0,0,0]
     
     def find_full_rows(self):
         num_lines = 0
@@ -310,7 +310,7 @@ def possible_states(piece, board):
                     if score_diff==score_increases[index]:
                         lines=index
                 metrics=get_metrics(possible_boards[move].state)
-                possible_states[move]=[lines,metrics['holes'],metrics['mse'],metrics['heights']] 
+                possible_states[move]=[lines,metrics['holes'],metrics['mse'],sum(metrics['heights'])] 
     return possible_states
 
 # This will use model when it's avaliable
@@ -318,7 +318,7 @@ def get_cpu_move(piece, board):
     possible = possible_states(piece, board)
     cur = float('inf')
     for move in possible:
-        metric = possible[move][2] + 1000 ** possible[move][1] + (1.5 ** max(possible[move][3])) - 500*possible[move][0]
+        metric = possible[move][2] + 1000 ** possible[move][1] + (1.5 ** possible[move][3]) - 500*possible[move][0]
         if metric < cur:
             best_move = move
             cur = metric
