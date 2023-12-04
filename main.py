@@ -67,7 +67,7 @@ def main():
                 for i in range(offset):
                     cpu_moves.append(direction)
                 cpu_moves.append('drop')
-            if frame % 1 == 0:
+            if frame % 20 == 0:
                 next_move = cpu_moves.popleft()
                 if next_move == 'rotate':
                     rotate(piece, board)

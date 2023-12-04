@@ -291,6 +291,7 @@ def possible_moves(piece, board):
                     else:
                         move_right(piece_copy, board)
                     board_copy = Board()
+                    board_copy.score = board.score
                     for i, row in enumerate(board.state):
                         for j, col in enumerate(row):
                             board_copy.state[i][j] = board.state[i][j]
@@ -308,4 +309,5 @@ def get_cpu_move(piece, board):
         if metric < cur:
             best_move = move
             cur = metric
+    print(get_metrics(possible[best_move].state)['holes'])
     return best_move
