@@ -342,3 +342,7 @@ def calculate_move(piece, move, board):
     return drop_down(piece_copy, make_random_piece(board), board_copy)
 
 
+def finish(boa):
+    return boa.update()
+
+
