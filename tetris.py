@@ -326,3 +326,7 @@ def get_cpu_move(piece, board):
     return best_move
 
 
+def finish(boa):
+    return boa.update()
+
+

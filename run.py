@@ -1,15 +1,17 @@
 from dqn_agent import DQNAgent
 import tetris
-from tetris import Piece, Board, make_random_piece, possible_states
+from tetris import Piece, Board, make_random_piece, possible_states, finish, drop_down
 from datetime import datetime
 from statistics import mean, median
 import random
 from logs import CustomTensorBoard
 from tqdm import tqdm
+import extra
+from extra import game
 
 def dqn():
     env = Board()
-    episodes = 20
+    episodes = 2
     max_steps = None
     epsilon_stop_episode = 1500
     mem_size = 20000
@@ -33,10 +35,12 @@ def dqn():
     log = CustomTensorBoard(log_dir=log_dir)
 
     scores = []
+    score_increases = {0:0, 1: 800, 2: 1200, 3: 1800, 4: 2000}
 
     for episode in tqdm(range(episodes), desc="Training Episodes"):
         current_state = env.reset()
         piece = make_random_piece(env)
+        next_piece = make_random_piece(env)
         print(f'Initial State: {current_state}')
         done = False
         steps = 0
@@ -46,14 +50,18 @@ def dqn():
             next_states = possible_states(piece,env)
             best_state = agent.best_state(next_states.values())
             best_action = next((action for action, state in next_states.items() if state == best_state), None)
-
             if best_action is not None:
-                reward, done = env.play(best_action[0], best_action[1], render=render, render_delay=render_delay)
+                # print(best_state)
+                # print(best_action)
+                # print (finish(env))
+                reward, done = score_increases[best_state[0]], not finish(env)
                 agent.add_to_memory(current_state, next_states[best_action], reward, done)
                 current_state = next_states[best_action]
+                piece, next_piece, env =game(piece,next_piece,env,best_action)
+                print("kl")
                 steps += 1
 
-        scores.append(env.get_game_score())
+        scores.append(env.score)
 
         if episode % train_every == 0:
             agent.train(batch_size=batch_size, epochs=epochs)
