@@ -311,6 +311,7 @@ def possible_states(piece, board):
                 possible_states[move]=[lines,metrics['holes'],metrics['mse'],metrics['heights']] 
     return possible_states
 
+
 # This will use model when it's avaliable
 def get_cpu_move(piece, board):
     possible = possible_states(piece, board)
@@ -322,5 +323,20 @@ def get_cpu_move(piece, board):
             cur = metric
     print(best_move)
     return best_move
+
+def calculate_move(piece, move, board):
+    piece_copy = Piece(board.rows, board.cols, piece.name)
+    board_copy = Board()
+    for i, row in enumerate(board.state):
+        for j, col in enumerate(row):
+            board_copy.state[i][j] = board.state[i][j]
+    while piece_copy.rotation != move[0]:
+        rotate(piece, board_copy)
+    for i in range(move[2]):
+        if move[1] = 'l':
+            move_left(piece_copy, board_copy)
+        else:
+            move_right(piece_copy, board_copy)
+    return drop_down(piece_copy, make_random_piece(board), board_copy)
 
 
