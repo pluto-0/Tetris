@@ -9,7 +9,6 @@ from tqdm import tqdm
 
 def dqn():
     env = Board()
-    piece = make_random_piece(env)
     episodes = 20
     max_steps = None
     epsilon_stop_episode = 1500
@@ -37,13 +36,14 @@ def dqn():
 
     for episode in tqdm(range(episodes), desc="Training Episodes"):
         current_state = env.reset()
+        piece = make_random_piece(env)
         print(f'Initial State: {current_state}')
         done = False
         steps = 0
         render = render_every and episode % render_every == 0
 
         while not done and (not max_steps or steps < max_steps):
-            next_states = env.get_next_states()
+            next_states = possible_states(piece,env)
             best_state = agent.best_state(next_states.values())
             best_action = next((action for action, state in next_states.items() if state == best_state), None)
 

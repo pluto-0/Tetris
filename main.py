@@ -132,7 +132,7 @@ def main():
     
         pygame.display.flip()
         frame += 1
-        clock.tick(5)
+        clock.tick(60)
         
 
 
@@ -156,3 +156,4 @@ def move_down(piece, next_piece, board, moved_down):
     
 if __name__ == '__main__':
     main()
+
