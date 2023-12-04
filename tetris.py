@@ -44,9 +44,9 @@ class Board:
         self.clear_lines(rows_to_clear)
         for block in self.state[0]:
             if block is not None:
-                return False
+                return [False, rows_to_clear]
         self.score += score_increases[len(rows_to_clear)]
-        return True
+        return [True, rows_to_clear]
     
     def is_legal_position(self, piece):
         for block in piece:
@@ -220,11 +220,13 @@ def drop_down(piece, next_piece, board):
         piece.position = new_position
         new_position = piece.move('d')
     board.place_piece(piece)
-    if not board.update():
+    update=board.update()
+    lines=len(update[1])
+    if not update[0]:
         board = Board()
     piece = next_piece
     next_piece = make_random_piece(board)
-    return piece, next_piece, board
+    return [piece, next_piece, board, lines]
 
 # These versions use a different is_legal_position, which 
 # still works when piece is above board
@@ -299,18 +301,12 @@ def possible_states(piece, board):
                     for i, row in enumerate(board.state):
                         for j, col in enumerate(row):
                             board_copy.state[i][j] = board.state[i][j]
-                    possible_boards[(rotation, direction, offset)] = drop_down(piece_copy, piece_copy, board_copy)[2]
+                    z=drop_down(piece_copy, piece_copy, board_copy)
+                    possible_boards[(rotation, direction, offset)], lines = z[2], z[3]
             for move in possible_boards:
-                score_diff = possible_boards[move].score - board.score
-                if score_diff > 0:
-                    print(score_diff)
-                score_increases = {0:0, 1: 800, 2: 1200, 3: 1800, 4: 2000}
-                lines=0
-                for index in score_increases:
-                    if score_diff==score_increases[index]:
-                        lines=index
                 metrics=get_metrics(possible_boards[move].state)
                 possible_states[move]=[lines,metrics['holes'],metrics['mse'],sum(metrics['heights'])] 
+                # possible_states[move]=[lines,metrics['holes'],metrics['mse'],sum(metrics['heights'])] 
     return possible_states
 
 # This will use model when it's avaliable
@@ -326,7 +322,5 @@ def get_cpu_move(piece, board):
     return best_move
 
 
-def finish(boa):
-    return boa.update()
 
 

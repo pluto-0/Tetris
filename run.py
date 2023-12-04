@@ -1,18 +1,18 @@
 from dqn_agent import DQNAgent
 import tetris
-from tetris import Piece, Board, make_random_piece, possible_states, finish, drop_down
+from tetris import Piece, Board, make_random_piece, possible_states, drop_down, find_full_rows
 from datetime import datetime
 from statistics import mean, median
 import random
 from logs import CustomTensorBoard
 from tqdm import tqdm
 import extra
-from extra import game
+from extra import game, clock
 
 def dqn():
     env = Board()
-    episodes = 2
-    max_steps = None
+    episodes = 200
+    max_steps = 50000
     epsilon_stop_episode = 1500
     mem_size = 20000
     discount = 0.95
@@ -50,15 +50,19 @@ def dqn():
             next_states = possible_states(piece,env)
             best_state = agent.best_state(next_states.values())
             best_action = next((action for action, state in next_states.items() if state == best_state), None)
+            print("best state is:  ", best_state)
+            print("best action is:  ",best_action)
             if best_action is not None:
                 # print(best_state)
                 # print(best_action)
-                # print (finish(env))
-                reward, done = score_increases[best_state[0]], not finish(env)
+                print(best_state[0])
+                if best_state[0]>0:
+                    clock()
+                reward, done = score_increases[best_state[0]], not finish(env)[0]
+                print(reward,done)
                 agent.add_to_memory(current_state, next_states[best_action], reward, done)
                 current_state = next_states[best_action]
                 piece, next_piece, env =game(piece,next_piece,env,best_action)
-                print("kl")
                 steps += 1
 
         scores.append(env.score)

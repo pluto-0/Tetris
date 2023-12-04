@@ -43,11 +43,10 @@ def game(piece,next_piece,board,move):
                 move_right(piece, board)
             else:
                 piece, next_piece, board = drop_down(piece, next_piece, board)
+                return piece, next_piece, board
         if frame % 15 == 0:
             if not moved_down:
                 piece, next_piece, board, moved_down = move_down(piece, next_piece, board, moved_down)
-                clock.tick(5)
-                return piece, next_piece, board
             moved_down = False
 
         screen.fill('black')
@@ -105,8 +104,7 @@ def game(piece,next_piece,board,move):
     
         pygame.display.flip()
         frame += 1
-        clock.tick(5)
-        print("sa")
+        clock.tick(6)
 
         
 
@@ -129,3 +127,8 @@ def move_down(piece, next_piece, board, moved_down):
         next_piece = make_random_piece(board)
     return piece, next_piece, board, moved_down
     
+
+
+def clock():
+    clock = pygame.time.Clock()
+    clock.tick(0.1)
