@@ -335,7 +335,7 @@ def calculate_move(piece, move, board):
     while piece_copy.rotation != move[0]:
         rotate(piece, board_copy)
     for i in range(move[2]):
-        if move[1] = 'l':
+        if move[1] == 'l':
             move_left(piece_copy, board_copy)
         else:
             move_right(piece_copy, board_copy)
