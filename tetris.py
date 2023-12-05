@@ -228,36 +228,6 @@ def drop_down(piece, next_piece, board):
     next_piece = make_random_piece(board)
     return [piece, next_piece, board, lines]
 
-# These versions use a different is_legal_position, which 
-# still works when piece is above board
-def drop_down2(piece, next_piece, board):
-    board_copy = Board()
-    for i, row in enumerate(board_copy.state):
-        for j, col in enumerate(row):
-            board_copy.state[i][j] = board.state[i][j]
-    new_position = piece.move('d')
-    while board_copy.is_legal_position(new_position):
-        piece.position = new_position
-        new_position = piece.move('d')
-    board_copy.place_piece(piece)
-    '''
-    if not board.update():
-        board = Board()
-        '''
-    piece = next_piece
-    next_piece = make_random_piece(board)
-    return piece, next_piece, board_copy
-
-def move_right2(piece, board):
-    new_position = piece.move('r')
-    if board.is_legal_position2(new_position):
-        piece.position = new_position
-
-def move_left2(piece, board):
-    new_position = piece.move('l')
-    if board.is_legal_position2(new_position):
-        piece.position = new_position
-
 def get_mse(arr):
     mean = np.mean(arr)
     sum_squared_error = 0
