@@ -1,6 +1,6 @@
 from dqn_agent import DQNAgent
 import tetris
-from tetris import Piece, Board, make_random_piece, possible_states, drop_down, find_full_rows
+from tetris import Piece, Board, make_random_piece, possible_states, drop_down
 from datetime import datetime
 from statistics import mean, median
 import random
