@@ -42,7 +42,7 @@ def game(piece,next_piece,board,move):
             elif next_move == 'r':
                 move_right(piece, board)
             else:
-                piece, next_piece, board = drop_down(piece, next_piece, board)
+                piece, next_piece, board, unused = drop_down(piece, next_piece, board)
                 return piece, next_piece, board
         if frame % 15 == 0:
             if not moved_down:
@@ -104,7 +104,7 @@ def game(piece,next_piece,board,move):
     
         pygame.display.flip()
         frame += 1
-        clock.tick(6)
+        clock.tick(600)
 
         
 

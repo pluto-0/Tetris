@@ -58,7 +58,7 @@ def dqn():
                 print(best_state[0])
                 if best_state[0]>0:
                     clock()
-                reward, done = score_increases[best_state[0]], not finish(env)[0]
+                reward, done = score_increases[best_state[0]], not best_state[3]
                 print(reward,done)
                 agent.add_to_memory(current_state, next_states[best_action], reward, done)
                 current_state = next_states[best_action]
