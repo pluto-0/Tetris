@@ -5,6 +5,7 @@ from logic import Piece, Board, rotate, move_left, move_right, drop_down, make_r
 import pprint
 from time import sleep
 from collections import deque
+from agent import Agent
 
 BLOCK_SIZE = logic.BLOCK_SIZE
 SCREEN_SIZE = (720, 1280)
@@ -35,9 +36,11 @@ def main():
     pygame.draw.rect(next_piece_screen, 'white', next_piece_box, 1)
     frame = 0
     total_scores = []
+    agent = Agent(board)
     cpu_moves = deque()
     moved_down = False
     running = True
+    agent = Agent(board)
 
     while running:
         if player_type[0] == 'h':
@@ -56,8 +59,11 @@ def main():
                 elif event.type == pygame.QUIT:
                     running = False
         else:
+            for event in pygame.event.get():
+                if (event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE) or event.type == pygame.QUIT:
+                    running = False
             if not cpu_moves:
-                rotation, direction, offset = get_cpu_move(piece, board)
+                rotation, direction, offset = get_cpu_move(piece, agent)
                 neg_mod = {-1: 3, -2: 2, -3: 1}
                 diff = rotation - piece.rotation
                 if diff < 0:
@@ -67,7 +73,7 @@ def main():
                 for i in range(offset):
                     cpu_moves.append(direction)
                 cpu_moves.append('drop')
-            if frame % 20 == 0:
+            if frame % 2 == 0:
                 next_move = cpu_moves.popleft()
                 if next_move == 'rotate':
                     rotate(piece, board)
@@ -153,9 +159,7 @@ def move_down(piece, next_piece, board, moved_down):
     else:
         board.place_piece(piece)
         if not board.update():
-            total_scores.append(board.score)
-            print(total_scores)
-            board = logic.Board()
+            board.reset()
         new_piece = make_random_piece(board)
         piece = next_piece
         next_piece = make_random_piece(board)

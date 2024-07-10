@@ -11,7 +11,7 @@ class Board:
         self.rows = rows
         self.cols = cols
         self.score = 0
-        self.state = [[None for i in range(cols)] for j in range(rows)]
+        self.state = [[None for i in range(self.cols)] for j in range(self.rows)]
 
     def find_full_rows(self):
         num_lines = 0
@@ -64,6 +64,10 @@ class Board:
                     self.state[block[0]][block[1]] = piece.color
                 except IndexError:
                     pass
+    
+    def reset(self):
+        self.state = [[None for i in range(self.cols)] for j in range(self.rows)]
+        self.score = 0
         
             
 class Piece:
@@ -181,7 +185,7 @@ rotations = {'line': line_rotations,
             'reverse_z': reverse_z_rotations
 }
 
-score_increases = {0:0, 1: 1, 2: 2, 3: 3, 4: 4}
+score_increases = {0:0, 1: 100, 2: 200, 3: 300, 4: 1200}
 
 def convert_cords(cords):
     return [cords[0] * BLOCK_SIZE, cords[1] * BLOCK_SIZE]
@@ -274,7 +278,8 @@ def get_metrics(board_state):
     bumpiness = 0
     for i in range(len(heights) - 1):
         bumpiness += abs(heights[i+1] - heights[i])
-    return {"holes": holes, 'mse': get_mse(heights), 'heights': heights, 'bumpiness': bumpiness}
+   #  return {"holes": holes, 'mse': get_mse(heights), 'heights': heights, 'bumpiness': bumpiness}
+    return [holes, get_mse(heights), bumpiness] + heights
 
 # We need many copies bc we don't want to modify original objects
 def possible_moves(piece, board):
@@ -298,15 +303,7 @@ def possible_moves(piece, board):
                     possible_states[(rotation, direction, offset)] = drop_down(piece_copy, piece_copy, board_copy)[2]
     return possible_states
 
+
 # This will use model when it's avaliable
-def get_cpu_move(piece, board):
-    possible = possible_moves(piece, board)
-    cur = float('inf')
-    for move in possible:
-        metrics = get_metrics(possible[move].state)
-        score_diff = possible[move].score - board.score
-        metric = .51 * sum(metrics['heights']) + .3566 * metrics['holes'] + .18 * metrics['bumpiness'] - .76 * score_diff
-        if metric < cur:
-            best_move = move
-            cur = metric
-    return best_move
+def get_cpu_move(piece, agent):
+    return agent.train(piece)
